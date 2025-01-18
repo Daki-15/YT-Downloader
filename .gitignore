@@ -1,0 +1,13 @@
+# Ignore Outputs directory
+Outputs/
+
+# Ignore text files
+*.txt
+
+# Ignore virtual environment directories
+venv/
+env/
+.venv/
+.env/
+__pycache__/
+*.pyc
