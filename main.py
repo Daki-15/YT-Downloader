@@ -1,6 +1,8 @@
 import yt_dlp
 import moviepy
 from pathlib import Path
+import tkinter as tk
+from tkinter import filedialog, messagebox
 
 # Function to convert MP4 file to MP3 format
 def MP4ToMP3(mp4, mp3):
@@ -9,7 +11,7 @@ def MP4ToMP3(mp4, mp3):
     FILETOCONVERT.close()
 
 # Function to download video from URL and optionally convert to MP3
-def download(*, url, name, mp3_format=False):
+def download(url, name, mp3_format=False):
     opts = {"outtmpl": f"./Outputs/{name}.mp4",  # Output template for MP4 file
             "format": "best"}  # Download the best quality format
     
@@ -36,26 +38,50 @@ def delete_mp4_files(directory):
         file.unlink()
         print(f"Deleted: {file}")
 
+# GUI functions
+def download_manual():
+    global name_entry, url_entry
+    url = url_entry.get()
+    name = name_entry.get()
+    mp3_format = mp3_var.get()
+    download(url=url, name=name, mp3_format=mp3_format)
+
+def upload_file():
+    file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
+    if file_path:
+        with open(file_path, 'r') as file:
+            for line in file.readlines():
+                name, url = line.strip().split('|')
+                download(url=url, name=name, mp3_format=mp3_var.get())
+        messagebox.showinfo("Download complete", "All videos have been downloaded.")
+
 def main():
-    # Prompt user for MP3 format option
-    mp3_format = input("Do you want to just mp3 format? (y/yes, n/no)\n> ")
+    global name_entry, url_entry, mp3_var
 
-    # Convert user input to boolean
-    if mp3_format.lower() in ['y', 'yes']:
-        mp3_format = True
+    # GUI setup
+    root = tk.Tk()
+    root.title("Video Downloader")
+    root.geometry("350x200")  # Set window dimensions
+    root.configure(bg="lightblue")  # Set window background color
 
-    # Read URLs and names from videos_to_download.txt
-    with open("videos_to_download.txt", 'r') as file:
-        for line in file.readlines():
-            name, url = line.split('|')
-            print(f"Name= {name}, URL= {url}") 
+    # URL and name input
+    tk.Label(root, text="Enter Name:", bg="lightblue", fg="black").grid(row=0, column=0, padx=5, pady=5, sticky="e")
+    name_entry = tk.Entry(root)
+    name_entry.grid(row=0, column=1, padx=5, pady=5, ipadx=50, ipady=5)
 
-            # Download and optionally convert to MP3
-            download(url=url, name=name, mp3_format=mp3_format)
+    tk.Label(root, text="Enter URL:", bg="lightblue", fg="black").grid(row=1, column=0, padx=5, pady=5, sticky="e")
+    url_entry = tk.Entry(root)
+    url_entry.grid(row=1, column=1, padx=5, pady=5, ipadx=50, ipady=5)
 
-    # Delete MP4 files if mp3_format is True
-    if mp3_format:
-        delete_mp4_files("./Outputs")
+    # MP3 format option
+    mp3_var = tk.BooleanVar()
+    tk.Checkbutton(root, text="MP3 Format", variable=mp3_var, bg="lightblue", fg="black").grid(row=2, column=0, columnspan=2, pady=5)
 
-if __name__ == '__main__':
+    # Download buttons
+    tk.Button(root, text="Download Manually", command=download_manual, bg="black", fg="white").grid(row=3, column=0, columnspan=2, pady=5, ipadx=30)
+    tk.Button(root, text="Upload File", command=upload_file, bg="black", fg="white").grid(row=4, column=0, columnspan=2, pady=5, ipadx=40)
+
+    root.mainloop()
+
+if __name__ == "__main__":
     main()
