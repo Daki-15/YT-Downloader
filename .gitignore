@@ -2,7 +2,7 @@
 Outputs/
 
 # Ignore text files
-*.txt
+videos_to_download.txt
 
 # Ignore virtual environment directories
 venv/
